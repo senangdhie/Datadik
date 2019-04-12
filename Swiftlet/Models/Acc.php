@@ -1,7 +1,7 @@
 <?php
 	/*
 		Filename : Acc.php
-		Modified : 10-09-2018
+		Modified : 07-04-2019
 	*/
 	namespace Swiftlet\Models;
 	class Acc extends \Swiftlet\Model
@@ -25,121 +25,70 @@
 			$this->mdmode = true;
 		}
 		
-		public function login($u,$p,$e,$l)
+		public function login($u,$p,$e)
 		{
-			//$l = 2; // 1 : sekolah, 2 : dinas, 3 : semua
-			$f = "peran_id<10";
-			switch($l) {
-				case 1:
-					$f = "a1.peran_id=10";
-					break;
-				case 2:
-					$f = "sekolah_id IS NULL AND (peran_id<10 OR peran_id>50)";
-					break;
-				case 3:
-					$f = "peran_id>0";
-					break;
-				case 4:
-					$f = "peran_id>10 AND sekolah_id IS NULL";
-					break;
-				case 5:
-					$f = "peran_id<=10";
-					break;
-				default:
-					$f = "peran_id<0";
-					break;
-			}
 			$psw = $this->passhash($p);
 			if($this->mdmode) {
 				$psw = $p;
 			}
-			$q = "SELECT pengguna_id,peran_id,nama,lembaga_id,la_id,kode_wilayah,sekolah_id FROM dbo.pengguna WITH (NOLOCK) WHERE soft_delete=0 AND aktif=1 AND $f AND username='$u' AND password='$psw'";
-			if($l==1) {
-				$q = "SELECT a1.pengguna_id,a1.peran_id,a1.nama,a1.lembaga_id,a1.la_id,a1.kode_wilayah,a1.sekolah_id FROM dbo.pengguna a1 WITH (NOLOCK) INNER JOIN dbo.sekolah a2 WITH (NOLOCK) ON a1.sekolah_id=a2.sekolah_id WHERE a1.soft_delete=0 AND a2.soft_delete=0 AND a1.aktif=1 AND $f AND a1.username='$u' AND a1.password='$psw'";
-			}
+			$q = "SELECT pengguna_id,nama,kode_wilayah FROM pengguna WHERE aktif=1 AND username='$u' AND password='$psw'";
 			$_login = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
 			$login = $_login->fetch();
 			if(is_array($login) && !empty($login[0]['pengguna_id']))
 			{
-				$peran = $login[0]['peran_id'];
 				$nama = $login[0]['nama'];
-				$lembaga = $login[0]['lembaga_id'];
-				$la = $login[0]['la_id'];
 				$wilayah = $login[0]['kode_wilayah'];
-				$sekolah = $login[0]['sekolah_id'];
 				$pid = $login[0]['pengguna_id'];
 				$this->pengguna_id = $pid;
-				$this->sid = $sekolah;
-				$this->peran_id = $peran;
 				$sessid = '';
 				
-				$q = "SELECT COUNT(1) AS jum FROM sso.sess_auth WITH (NOLOCK) WHERE pengguna_id='$pid' AND log_out IS NULL AND expired_time>GETDATE()";
-				$_rs = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
-				$rs = $_rs->fetch();
-				$j = $rs[0]['jum'];
-				$arr_pass_auth = array(1,6,8,55,56);
-				/*
-				if($j>1 && $peran==10) {
-					$this->is_loged = true;
-				}
-				*/
 				if($this->is_loged) {
 					return false;
 				}else{
-					if(is_null($peran)) {
-						return false;
-					}else{
-						try{
-							$_ip = $this->get_ip();
-							$_expired = 'DATEADD(mi,60,GETDATE())';
-							if($e>0) {
-								$_expired = 'DATEADD(yy,1,GETDATE())';
-							}
-							
-							$q = "INSERT INTO sso.sess_auth(sessid,pengguna_id,log_time,refresh_time,expired_time,log_ip) VALUES(NEWID(),'$pid',GETDATE(),GETDATE(),$_expired,'$_ip')";
-							$wl = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
-							$wl->run(true);
-							
-							$q = "SELECT TOP 1 sessid FROM sso.sess_auth WITH (NOLOCK) WHERE pengguna_id='$pid' ORDER BY log_time DESC";
-							$_rs = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
-							$rs = $_rs->fetch();
-							$sessid = $rs[0]['sessid'];
-							$this->sessid = $rs[0]['sessid'];
-							
-							$sign = md5($sessid.$pid);
-							$q = "UPDATE sso.sess_auth SET sign='$sign' WHERE sessid='$sessid'";
-							$wl = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
-							$wl->run(true);
-							
-							$q = "INSERT INTO dbo.log_pengguna(pengguna_id,alamat_ip,keterangan) VALUES('$pid','$_ip','Login berhasil')";
-							$wl = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
-							$wl->run(true);
-						}catch(\Exception $exp){
-							echo "<!--".$exp->getMessage()."-->";
+					try{
+						$_ip = $this->get_ip();
+						$_expired = "now()+interval '1 hour'";
+						if($e>0) {
+							$_expired = "now()+interval '1 year'";
 						}
 						
-						$cookVal = array(
-							'sessid' => $sessid,
-							'pid' => $pid,
-							'user' => $u,
-							'type' => $peran,
-							'nama' => $nama,
-							'lembaga' => $lembaga,
-							'wilayah' => trim($wilayah),
-							'sekolah' => $sekolah,
-							'exp' => $e
-						);
-						$cookVal = base64_encode(json_encode($cookVal));
-						$cookVar = $this->app->getConfig('globalVar');
-						$cookURI = $this->app->getConfig('rootURI');
-						if(setcookie($cookVar,$cookVal,$e,'/',$cookURI,false,false)) {
-							if($peran==1) {
-								setcookie('manajerdapodik','dontlookit',$e,'/',$cookURI,false,false);
-							}
-							return true;
-						}else{
-							return false;
-						}
+						$q = "INSERT INTO sso.sess_auth(sessid,pengguna_id,log_time,refresh_time,expired_time,log_ip) VALUES(uuid_generate_v4(),'$pid',now(),now(),$_expired,'$_ip')";
+						$wl = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
+						$wl->run(true);
+						
+						$q = "SELECT sessid FROM sso.sess_auth WHERE pengguna_id='$pid' ORDER BY log_time DESC";
+						$_rs = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
+						$rs = $_rs->fetch();
+						$sessid = $rs[0]['sessid'];
+						$this->sessid = $rs[0]['sessid'];
+						
+						$sign = md5($sessid.$pid);
+						$q = "UPDATE sso.sess_auth SET sign='$sign' WHERE sessid='$sessid'";
+						$wl = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
+						$wl->run(true);
+						
+						$q = "INSERT INTO log_pengguna(pengguna_id,alamat_ip,keterangan) VALUES('$pid','$_ip','Login berhasil')";
+						$wl = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
+						$wl->run(true);
+					}catch(\Exception $exp){
+						echo "ERROR Detected.<!--".$exp->getMessage()."-->";
+					}
+					
+					$cookVal = array(
+						'sessid' => $sessid,
+						'pid' => $pid,
+						'user' => $u,
+						'nama' => $nama,
+						'wilayah' => trim($wilayah),
+						'exp' => $e
+					);
+					$cookVal = base64_encode(json_encode($cookVal));
+					$cookVar = $this->app->getConfig('globalVar');
+					$cookURI = $this->app->getConfig('rootURI');
+					if(setcookie($cookVar,$cookVal,$e,'/',$cookURI,false,false)) {
+						return true;
+					}else{
+						return false;
 					}
 				}
 			}else{
@@ -155,7 +104,7 @@
 				$cook = json_decode(base64_decode($_COOKIE[$cookVar]),true);
 				$sid = $cook['sessid'];
 				if(!empty($sid)) {
-					$q = "SELECT CASE WHEN DATEADD(mi,60,refresh_time)>GETDATE() OR expired_time>GETDATE() THEN 1 ELSE 0 END AS masih FROM sso.sess_auth WITH (NOLOCK) WHERE sessid='$sid'";
+					$q = "SELECT CASE WHEN now()+interval '1 hour'>now() OR expired_time>now() THEN 1 ELSE 0 END AS masih FROM sso.sess_auth WHERE sessid='$sid'";
 					$_rs = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
 					$rs = $_rs->fetch();
 					$vld = 0;
@@ -206,8 +155,8 @@
 				$this->is_loged = true;
 				$cook = json_decode(base64_decode($_COOKIE[$cookVar]),true);
 				$this->pengguna_id = $cook['pid'];
-				$this->sid = $cook['sekolah'];
-				$this->peran_id = $cook['type'];
+				#$this->sid = $cook['sekolah'];
+				#$this->peran_id = $cook['type'];
 				$this->sessid = $cook['sessid'];
 				return true;
 			}else{
@@ -225,11 +174,11 @@
 				$sessid = $this->sessid;
 				$pid = $this->pengguna_id;
 
-				$q = "INSERT INTO dbo.log_pengguna(pengguna_id,alamat_ip,keterangan) SELECT TOP 1 pengguna_id,alamat_ip,'Berhasil logout' FROM log_pengguna WITH (NOLOCK) WHERE pengguna_id='$pid' ORDER BY waktu_log DESC";
+				$q = "INSERT INTO log_pengguna(pengguna_id,alamat_ip,keterangan) SELECT pengguna_id,alamat_ip,'Berhasil logout' AS keterangan FROM log_pengguna WHERE pengguna_id='$pid' ORDER BY waktu_log DESC LIMIT 1 OFFSET 0";
 				$upd = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
 				$upd->run(true);
 
-				$q = "UPDATE sso.sess_auth SET log_out=GETDATE() WHERE sessid='$sessid'";
+				$q = "UPDATE sso.sess_auth SET log_out=now() WHERE sessid='$sessid'";
 				$wl = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
 				$wl->run(true);
 				$cookURI = $this->app->getConfig('rootURI');
