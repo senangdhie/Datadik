@@ -1,44 +1,56 @@
-			<div class="android-header mdl-layout__header mdl-layout__header--waterfall">
-				<div class="mdl-layout__header-row">
-					<span class="android-title mdl-layout-title">
-						<img class="android-logo-image" src="/assets/images/main-logo.png">
-					</span>
-					<div class="android-header-spacer mdl-layout-spacer"></div>
-					<div class="android-search-box mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right mdl-textfield--full-width">
-						<label class="mdl-button mdl-js-button mdl-button--icon" for="search-field">
-							<i class="material-icons">search</i>
-						</label>
-						<div class="mdl-textfield__expandable-holder">
-							<input class="mdl-textfield__input" type="text" id="search-field">
-						</div>
-					</div>
-					<div class="android-navigation-container">
-						<nav class="android-navigation mdl-navigation">
-							<a class="mdl-navigation__link mdl-typography--text-uppercase" href="/">Beranda</a>
-							<a class="mdl-navigation__link mdl-typography--text-uppercase" href="/#/data">Data</a>
-							<a class="mdl-navigation__link mdl-typography--text-uppercase" href="/#/info">Informasi</a>
-							<a class="mdl-navigation__link mdl-typography--text-uppercase" href="/#/galeri">Galeri</a>
-							<a class="mdl-navigation__link mdl-typography--text-uppercase" href="/#/unduh">Unduhan</a>
-						</nav>
-					</div>
-					<span class="android-mobile-title mdl-layout-title">
-						<img class="android-logo-image" src="/assets/images/main-logo.png">
-					</span>
-					<?php if(!empty($sessid) || $this->get('logged')) { ?>
-					<button class="android-more-button mdl-button mdl-js-button mdl-button--icon mdl-js-ripple-effect" id="profile-button">
-						<i class="material-icons">account_circle</i>
-					</button>
-					<ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="profile-button">
-						<li class="mdl-menu__item">Profile Saya</li>
-						<li class="mdl-menu__item"><a href="/sp/#/logout">Logout</a></li>
-					</ul>
-					<?php } ?>
-					<button class="android-more-button mdl-button mdl-js-button mdl-button--icon mdl-js-ripple-effect" id="more-button">
-						<i class="material-icons">more_vert</i>
-					</button>
-					<ul class="mdl-menu mdl-js-menu mdl-menu--bottom-right mdl-js-ripple-effect" for="more-button">
-						<li class="mdl-menu__item">Login Guru dan Tendik</li>
-						<li class="mdl-menu__item">Login Manajemen</li>
-					</ul>
-				</div>
-			</div>
+<nav class="navbar navbar-icon-top navbar-expand-lg fixed-top navbar-dark bg-primary">
+  <a class="navbar-brand" href="#">&nbsp;</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/apps/">
+          <i class="fa fa-home"></i>
+          Home
+          <span class="sr-only">(current)</span>
+          </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="fa fa-envelope-o">
+            <span class="badge badge-danger">11</span>
+          </i>
+          Link
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#">
+          <i class="fa fa-envelope-o">
+            <span class="badge badge-warning">11</span>
+          </i>
+          Disabled
+        </a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fa fa-envelope-o">
+            <span class="badge badge-primary">11</span>
+          </i>
+          Dropdown
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li>
+    </ul>
+    <ul class="navbar-nav ">
+      <li class="nav-item">
+        <a class="nav-link" href="#">
+          <i class="fa fa-user"></i>
+          Account
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

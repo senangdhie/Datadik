@@ -18,7 +18,7 @@
               <div class="nav-home-container">
                 <ul>
                   <li><a class="btn btn-outline-primary" href="#"><i class="fa fa-wrench"></i><span>Setting</span></a></li>
-                  <li><a class="btn btn-outline-primary" href="#"><i class="fa fa-home"></i><span>Sekolah</span></a></li>
+                  <li><a class="btn btn-outline-primary" href="/apps/#/refsp" target="_blank"><i class="fa fa-home"></i><span>Sekolah</span></a></li>
                   <li><a class="btn btn-outline-primary" href="#"><i class="fa fa-users"></i><span>Guru</span></a></li>
                 </ul>
               </div>
