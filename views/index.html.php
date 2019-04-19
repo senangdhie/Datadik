@@ -37,8 +37,8 @@
 					  <h3 class="login-heading mb-4">Akses Pengguna</h3>
 					  <form method="post" action="">
 						<div class="form-label-group">
-						  <input type="email" id="authpass" name="authuser" class="form-control" placeholder="Email address" required autofocus>
-						  <label for="authpass">Username</label>
+						  <input type="email" id="authuser" name="authuser" class="form-control" placeholder="Email address" required autofocus>
+						  <label for="authuser">Username</label>
 						</div>
 						<div class="form-label-group">
 						  <input type="password" id="authpass" name="authpass" class="form-control" placeholder="Password" required>

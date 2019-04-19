@@ -1,7 +1,7 @@
 <?php
 	/*
 		Filename : Acc.php
-		Modified : 07-04-2019
+		Modified : 18-04-2019
 	*/
 	namespace Swiftlet\Models;
 	class Acc extends \Swiftlet\Model
@@ -52,21 +52,19 @@
 							$_expired = "now()+interval '1 year'";
 						}
 						
-						$q = "INSERT INTO sso.sess_auth(sessid,pengguna_id,log_time,refresh_time,expired_time,log_ip) VALUES(uuid_generate_v4(),'$pid',now(),now(),$_expired,'$_ip')";
+						$uid = $_login->generateuuidv4();
+						$q = "INSERT INTO sso.sess_auth(sessid,pengguna_id,log_time,refresh_time,expired_time,log_ip) VALUES('$uid','$pid',now(),now(),$_expired,'$_ip')";
 						$wl = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
 						$wl->run(true);
-						
 						$q = "SELECT sessid FROM sso.sess_auth WHERE pengguna_id='$pid' ORDER BY log_time DESC";
 						$_rs = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
 						$rs = $_rs->fetch();
 						$sessid = $rs[0]['sessid'];
 						$this->sessid = $rs[0]['sessid'];
-						
 						$sign = md5($sessid.$pid);
 						$q = "UPDATE sso.sess_auth SET sign='$sign' WHERE sessid='$sessid'";
 						$wl = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
 						$wl->run(true);
-						
 						$q = "INSERT INTO log_pengguna(pengguna_id,alamat_ip,keterangan) VALUES('$pid','$_ip','Login berhasil')";
 						$wl = $this->app->getSingleton('upsertlink')->rawQuery($q,0);
 						$wl->run(true);
@@ -263,7 +261,7 @@
 
 		private function get_ip()
 		{
-			$_ip = '0.0.0.0';
+			$_ip = '127.0.0.1';
 			if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR']) {
 					$_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
 			} else {

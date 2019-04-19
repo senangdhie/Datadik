@@ -24,7 +24,7 @@ class Upsertlink extends \Swiftlet\Model
 			$this->db = new \PDO($constr);
 			$this->db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 		} catch (\PDOException $e) {
-			var_dump($e);
+			$this->_err = $e->getMessage();
 			die("<html><head><title>Sistem Sibuk</title></head><body><h3>Sistem Sedang Sibuk</h3></body></html>");
 		}
 		return $this;
@@ -34,6 +34,7 @@ class Upsertlink extends \Swiftlet\Model
 	{
 		if(is_null($this->db))
 		{
+		    $this->_err = "Database link not defined";
 			return false;
 		}
 		$query = $this->_rawQuery;
@@ -43,8 +44,6 @@ class Upsertlink extends \Swiftlet\Model
         }catch(\Exception $e){
 			$this->_err = $e->getMessage();
             return false;
-			//throw new \Exception($e->getMessage());
-			//echo "Internal Problem : Server gagal response";
         }
         
         if(!$noResult){
@@ -74,5 +73,15 @@ class Upsertlink extends \Swiftlet\Model
 	{
 		return $this->_err;
 	}
+	
+	public function generateuuidv4() {
+        return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
+            mt_rand( 0, 0xffff ),
+            mt_rand( 0, 0x0fff ) | 0x4000,
+            mt_rand( 0, 0x3fff ) | 0x8000,
+            mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+        );
+    }
 }
 ?>

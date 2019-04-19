@@ -15,9 +15,10 @@
 <script type="text/javascript" src="/assets/js/jquery.min.js"><script type="text/javascript" src="/assets/js/popper.min.js"></script><script type="text/javascript" src="/assets/js/bootstrap.min.js"></script>
 
 </head><body><?php
-		if($_SERVER['SERVER_NAME']!='localhost' && $_SERVER['HTTPS']!='on') {
-			echo "<script>location.href='/maintenis.html';</script>";
+		if($_SERVER['SERVER_NAME']!='localhost' && !isset($_SERVER["HTTPS"])) {
+			echo "<script>location.href='https://".$_SERVER['SERVER_NAME']."';</script>";
 		}
+		
 		if($maintenis) {
 			echo "<script>location.href='/maintenis.html';</script>";
 		}else{
